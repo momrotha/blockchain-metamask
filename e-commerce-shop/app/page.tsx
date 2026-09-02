@@ -141,7 +141,7 @@ export default function Home() {
         ? "Insufficient ETH in wallet for item price + gas fee"
         : isRejected 
         ? "User rejected transaction in wallet"
-        : (err.message || "Unknown transaction error").slice(0, 80);
+        : (err.response?.data?.detail || err.message || "Unknown transaction error").slice(0, 100);
 
       setPaymentStatus(`Error: ${reason}`);
       toast.error(`Transaction failed: ${reason}`, { id: toastId });
