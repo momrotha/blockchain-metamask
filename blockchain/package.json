@@ -12,6 +12,7 @@
   "type": "module",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.7",
+    "dotenv": "^16.6.1",
     "hardhat": "^3.12.0"
   }
 }

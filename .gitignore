@@ -1,0 +1,40 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Node.js
+**/node_modules/
+**/.next/
+**/dist/
+**/build/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# OS generated files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+
+# Hardhat
+blockchain/artifacts/
+blockchain/cache/
+blockchain/ignition/deployments/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database files
+*.db-journal
