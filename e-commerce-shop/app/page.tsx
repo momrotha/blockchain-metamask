@@ -73,15 +73,30 @@ export default function Home() {
     const toastId = toast.loading("Confirming transaction in MetaMask...");
     let orderId: string | null = null;
     try {
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        try {
+          await (window as any).ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0xaa36a7' }], // 11155111 in hex = Sepolia
+          });
+        } catch (switchErr) {
+          console.warn("Chain switch error:", switchErr);
+        }
+      }
+
+      const provider = new ethers.BrowserProvider((window as any).ethereum);
+      const signer = await provider.getSigner();
+      const currentAddress = await signer.getAddress();
+
       const productId = cart[0].id;
       const orderRes = await axios.post(`${API_URL}/orders`, {
         product_id: productId,
-        customer_address: wallet.address,
+        customer_address: currentAddress,
         user_email: currentUser ? currentUser.email : null
       });
       orderId = orderRes.data.id.toString();
 
-      const contract = new ethers.Contract(PAYMENT_PROCESSOR_ADDRESS, PAYMENT_PROCESSOR_ABI, wallet.signer);
+      const contract = new ethers.Contract(PAYMENT_PROCESSOR_ADDRESS, PAYMENT_PROCESSOR_ABI, signer);
       const totalEth = calculateTotalEth();
       
       const tx = await contract.pay(orderId, {

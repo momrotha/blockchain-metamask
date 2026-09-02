@@ -22,7 +22,8 @@ export default function WalletConnect({ onConnect }: { onConnect: (address: stri
         // Auto update when user switches account in MetaMask
         (window as any).ethereum.on('accountsChanged', async (accounts: string[]) => {
           if (accounts.length > 0) {
-            const newSigner = await provider.getSigner();
+            const freshProvider = new ethers.BrowserProvider((window as any).ethereum);
+            const newSigner = await freshProvider.getSigner();
             const newAddr = await newSigner.getAddress();
             setAddress(newAddr);
             onConnect(newAddr, newSigner);
@@ -30,6 +31,10 @@ export default function WalletConnect({ onConnect }: { onConnect: (address: stri
           } else {
             setAddress(null);
           }
+        });
+
+        (window as any).ethereum.on('chainChanged', () => {
+          window.location.reload();
         });
       } catch (error) {
         console.error("Wallet connection failed:", error);
