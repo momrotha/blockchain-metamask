@@ -13,11 +13,12 @@ import { useAppContext } from './context/AppContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { API_URL, PAYMENT_PROCESSOR_ADDRESS } from './config';
+
 // ABI for the PaymentProcessor contract
 const PAYMENT_PROCESSOR_ABI = [
   "function pay(string memory orderId) public payable"
 ];
-const PAYMENT_PROCESSOR_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x970a0CcD8a4839497C0a0803Db2FCbb8d510D428";
 
 export default function Home() {
   const { currentUser, setCurrentUser, cart, addToCart, clearCart } = useAppContext();
@@ -32,11 +33,11 @@ export default function Home() {
   // Product detail state
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [showFiatCheckout, setShowFiatCheckout] = useState(false);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState(`All`);
   const router = useRouter();
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/products')
+    axios.get(`${API_URL}/products`)
       .then(response => setProducts(response.data))
       .catch(error => {
         console.error("Error loading products:", error);
@@ -73,7 +74,7 @@ export default function Home() {
     let orderId: string | null = null;
     try {
       const productId = cart[0].id;
-      const orderRes = await axios.post('http://127.0.0.1:8000/orders', {
+      const orderRes = await axios.post(`${API_URL}/orders`, {
         product_id: productId,
         customer_address: wallet.address,
         user_email: currentUser ? currentUser.email : null
@@ -99,24 +100,26 @@ export default function Home() {
       
       await tx.wait();
       
-      const verifyRes = await axios.post('http://127.0.0.1:8000/verify-payment', {
-        order_id: parseInt(orderId),
-        tx_hash: tx.hash
-      });
+      if (orderId) {
+        const verifyRes = await axios.post(`${API_URL}/verify-payment`, {
+          order_id: parseInt(orderId),
+          tx_hash: tx.hash
+        });
 
-      if (verifyRes.data.status === "payment verified") {
-        setPaymentStatus(
-          <div className="flex flex-col items-center text-green-700">
-            <p className="font-bold text-lg mb-1">🎉 Payment Verified via Smart Contract!</p>
-            <p className="text-sm">Your order has been recorded securely on-chain.</p>
-          </div>
-        );
-        toast.success("Transaction Mined & Payment Verified!", { id: toastId });
-        clearCart();
+        if (verifyRes.data.status === "payment verified") {
+          setPaymentStatus(
+            <div className="flex flex-col items-center text-green-700">
+              <p className="font-bold text-lg mb-1">🎉 Payment Verified via Smart Contract!</p>
+              <p className="text-sm">Your order has been recorded securely on-chain.</p>
+            </div>
+          );
+          toast.success("Transaction Mined & Payment Verified!", { id: toastId });
+          clearCart();
+        }
       }
     } catch (err: any) {
       console.error(err);
-      const isInsufficient = err.code === 'INSUFFICIENT_FUNDS' || err.message?.toLowerCase().includes("insufficient funds");
+      const isInsufficient = err.code === `INSUFFICIENT_FUNDS` || err.message?.toLowerCase().includes("insufficient funds");
       const isRejected = err.code === 4001 || err.message?.toLowerCase().includes("user rejected") || err.message?.toLowerCase().includes("user denied");
 
       const reason = isInsufficient
@@ -130,7 +133,7 @@ export default function Home() {
       
       if (orderId) {
         try {
-          await axios.post('http://127.0.0.1:8000/orders/fail', {
+          await axios.post(`${API_URL}/orders/fail`, {
             order_id: parseInt(orderId),
             reason: reason
           });
@@ -193,7 +196,7 @@ export default function Home() {
                     <button 
                       onClick={() => {
                         setShowDropdown(false);
-                        router.push('/admin');
+                        router.push(`/admin`);
                       }}
                       className="w-full text-left px-4 py-2 text-indigo-600 hover:bg-indigo-50 font-medium transition flex items-center gap-2"
                     >
@@ -203,7 +206,7 @@ export default function Home() {
                   <button 
                     onClick={() => {
                       setShowDropdown(false);
-                      router.push('/account');
+                      router.push(`/account`);
                     }}
                     className="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium transition flex items-center gap-2"
                   >
@@ -244,7 +247,7 @@ export default function Home() {
                 <div className="text-center py-12">
                   <FontAwesomeIcon icon={faUserCircle} className="text-6xl text-gray-300 mb-4 block mx-auto" />
                   <p className="text-gray-500 text-xl">Please sign in to place an order.</p>
-                  <button onClick={() => { setIsCheckout(false); router.push('/login'); }} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Sign In</button>
+                  <button onClick={() => { setIsCheckout(false); router.push(`/login`); }} className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-xl font-bold">Sign In</button>
                 </div>
               ) : cart.length === 0 ? (
                 <div className="text-center py-12">
@@ -294,7 +297,7 @@ export default function Home() {
                       onCancel={() => setShowFiatCheckout(false)}
                       onFailure={async (reason: string) => {
                         try {
-                          await axios.post('http://127.0.0.1:8000/orders', {
+                          await axios.post(`${API_URL}/orders`, {
                             product_id: cart[0].id,
                             customer_address: "Card Payment",
                             user_email: currentUser.email,
@@ -314,12 +317,12 @@ export default function Home() {
                       }}
                       onSuccess={async () => {
                         try {
-                          const orderRes = await axios.post('http://127.0.0.1:8000/orders', {
+                          const orderRes = await axios.post(`${API_URL}/orders`, {
                             product_id: cart[0].id,
                             customer_address: "Fiat",
                             user_email: currentUser.email
                           });
-                          await axios.post('http://127.0.0.1:8000/verify-payment', {
+                          await axios.post(`${API_URL}/verify-payment`, {
                             order_id: orderRes.data.id,
                             tx_hash: "FIAT"
                           });

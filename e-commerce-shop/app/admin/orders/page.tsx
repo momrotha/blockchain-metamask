@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import { toast } from 'sonner';
 import { RefreshCcw, ExternalLink, CheckCircle, XCircle, Clock, Search } from 'lucide-react';
 
@@ -14,7 +15,7 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://127.0.0.1:8000/admin/orders');
+      const res = await axios.get(`${API_URL}/admin/orders`);
       setOrders(res.data);
       setFiltered(res.data);
     } catch { toast.error('Failed to load orders'); }

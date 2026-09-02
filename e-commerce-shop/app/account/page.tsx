@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { toast } from 'sonner';
 import axios from 'axios';
+import { API_URL } from '../config';
+import { toast } from 'sonner';
 import { Camera, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AccountProfilePage() {
@@ -34,7 +35,7 @@ export default function AccountProfilePage() {
 
   const fetchOrders = async (userEmail: string) => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/orders/${userEmail}`);
+      const res = await axios.get(`${API_URL}/orders/${userEmail}`);
       setOrders(res.data);
     } catch (err) {
       console.error("Failed to fetch orders");
@@ -45,7 +46,7 @@ export default function AccountProfilePage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      const res = await axios.put(`http://127.0.0.1:8000/users/${email}`, { name });
+      const res = await axios.put(`${API_URL}/users/${email}`, { name });
       setCurrentUser(res.data);
       toast.success("Profile updated successfully");
     } catch (err: any) {
@@ -64,7 +65,7 @@ export default function AccountProfilePage() {
 
     const toastId = toast.loading("Uploading avatar...");
     try {
-      const res = await axios.post(`http://127.0.0.1:8000/users/${email}/avatar`, formData, {
+      const res = await axios.post(`${API_URL}/users/${email}/avatar`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setAvatarUrl(res.data.avatar_url);

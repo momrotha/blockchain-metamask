@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Store } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
+import { API_URL } from '../config';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -22,7 +23,7 @@ export default function LoginPage() {
     
     try {
       if (isLogin) {
-        const res = await axios.post('http://127.0.0.1:8000/login', {
+        const res = await axios.post(`${API_URL}/login`, {
           email,
           password
         });
@@ -30,7 +31,7 @@ export default function LoginPage() {
         setCurrentUser(res.data);
         router.push('/');
       } else {
-        const res = await axios.post('http://127.0.0.1:8000/register', {
+        const res = await axios.post(`${API_URL}/register`, {
           name,
           email,
           password

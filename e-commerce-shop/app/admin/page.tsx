@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
+import { API_URL } from '../config';
 import { Users, Package, ShoppingBag, TrendingUp, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 export default function AdminOverviewPage() {
@@ -13,9 +14,9 @@ export default function AdminOverviewPage() {
     const fetchAll = async () => {
       try {
         const [usersRes, productsRes, ordersRes] = await Promise.all([
-          axios.get('http://127.0.0.1:8000/admin/users'),
-          axios.get('http://127.0.0.1:8000/admin/products'),
-          axios.get('http://127.0.0.1:8000/admin/orders'),
+          axios.get(`${API_URL}/admin/users`),
+          axios.get(`${API_URL}/admin/products`),
+          axios.get(`${API_URL}/admin/orders`),
         ]);
         const orders = ordersRes.data;
         setStats({

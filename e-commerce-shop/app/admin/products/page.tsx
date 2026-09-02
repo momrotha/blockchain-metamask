@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import { toast } from 'sonner';
 import { Pencil, Trash2, Plus, X, RefreshCcw, Package } from 'lucide-react';
 
@@ -27,7 +28,7 @@ export default function AdminProductsPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://127.0.0.1:8000/admin/products');
+      const res = await axios.get(`${API_URL}/admin/products`);
       setProducts(res.data);
     } catch { toast.error('Failed to load products'); }
     finally { setLoading(false); }
@@ -54,11 +55,11 @@ export default function AdminProductsPage() {
       // Convert USD input back to ETH for storage
       const payload = { ...form, price_eth: parseFloat(form.price_eth) / 3000 };
       if (editProduct) {
-        const res = await axios.put(`http://127.0.0.1:8000/admin/products/${editProduct.id}`, payload);
+        const res = await axios.put(`${API_URL}/admin/products/${editProduct.id}`, payload);
         setProducts(prev => prev.map(p => p.id === editProduct.id ? res.data : p));
         toast.success('Product updated');
       } else {
-        const res = await axios.post('http://127.0.0.1:8000/admin/products', payload);
+        const res = await axios.post(`${API_URL}/admin/products`, payload);
         setProducts(prev => [...prev, res.data]);
         toast.success('Product created');
       }
@@ -73,7 +74,7 @@ export default function AdminProductsPage() {
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Delete "${name}"? This action cannot be undone.`)) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/admin/products/${id}`);
+      await axios.delete(`${API_URL}/admin/products/${id}`);
       setProducts(prev => prev.filter(p => p.id !== id));
       toast.success(`"${name}" deleted`);
     } catch { toast.error('Failed to delete product'); }

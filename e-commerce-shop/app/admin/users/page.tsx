@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../../config';
 import { toast } from 'sonner';
 import { Trash2, ShieldCheck, UserCircle2, RefreshCcw, Search, ShoppingBag } from 'lucide-react';
 
@@ -24,7 +25,7 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://127.0.0.1:8000/admin/users');
+      const res = await axios.get(`${API_URL}/admin/users`);
       setUsers(res.data);
       setFiltered(res.data);
     } catch { toast.error('Failed to fetch users'); }
@@ -45,7 +46,7 @@ export default function AdminUsersPage() {
     if (!confirm(`Delete user: ${email}?`)) return;
     setDeletingEmail(email);
     try {
-      await axios.delete(`http://127.0.0.1:8000/admin/users/${email}`);
+      await axios.delete(`${API_URL}/admin/users/${email}`);
       toast.success(`User ${email} deleted`);
       setUsers(prev => prev.filter(u => u.email !== email));
     } catch (err: any) {
@@ -59,7 +60,7 @@ export default function AdminUsersPage() {
     if (expandedEmail === email) { setExpandedEmail(null); return; }
     if (!userOrders[email]) {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/orders/${email}`);
+        const res = await axios.get(`${API_URL}/orders/${email}`);
         setUserOrders(prev => ({ ...prev, [email]: res.data }));
       } catch { toast.error('Failed to load orders'); }
     }
