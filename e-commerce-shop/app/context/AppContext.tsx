@@ -14,6 +14,7 @@ type AppContextType = {
   setCurrentUser: (user: User | null) => void;
   cart: any[];
   addToCart: (product: any) => void;
+  removeFromCart: (index: number) => void;
   clearCart: () => void;
 };
 
@@ -54,12 +55,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCart((prev) => [...prev, product]);
   };
 
+  const removeFromCart = (index: number) => {
+    setCart((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const clearCart = () => {
     setCart([]);
   };
 
   return (
-    <AppContext.Provider value={{ currentUser, setCurrentUser, cart, addToCart, clearCart }}>
+    <AppContext.Provider value={{ currentUser, setCurrentUser, cart, addToCart, removeFromCart, clearCart }}>
       {children}
     </AppContext.Provider>
   );

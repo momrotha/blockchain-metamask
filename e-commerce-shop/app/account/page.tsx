@@ -42,6 +42,17 @@ export default function AccountProfilePage() {
     }
   };
 
+  const handleCancelOrder = async (orderId: number) => {
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+    try {
+      await axios.delete(`${API_URL}/orders/${orderId}`);
+      setOrders(prev => prev.filter(o => o.id !== orderId));
+      toast.success("Order cancelled");
+    } catch (err) {
+      toast.error("Failed to cancel order");
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -175,19 +186,35 @@ export default function AccountProfilePage() {
                      </a>
                   )}
                 </div>
-                <div>
+                <div className="flex items-center gap-3">
                   {order.status === 'paid' ? (
                     <span className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       <CheckCircle className="w-3.5 h-3.5" /> Success
                     </span>
                   ) : order.status === 'failed' ? (
-                    <span className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      <XCircle className="w-3.5 h-3.5" /> Failed
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <XCircle className="w-3.5 h-3.5" /> Failed
+                      </span>
+                      <button
+                        onClick={() => handleCancelOrder(order.id)}
+                        className="text-xs font-semibold text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 border border-gray-200 px-2.5 py-1.5 rounded-lg transition"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                      Pending
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Pending
+                      </span>
+                      <button
+                        onClick={() => handleCancelOrder(order.id)}
+                        className="text-xs font-semibold text-gray-500 hover:text-red-600 bg-gray-50 hover:bg-red-50 border border-gray-200 px-2.5 py-1.5 rounded-lg transition"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

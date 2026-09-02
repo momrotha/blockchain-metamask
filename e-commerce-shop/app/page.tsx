@@ -21,7 +21,7 @@ const PAYMENT_PROCESSOR_ABI = [
 ];
 
 export default function Home() {
-  const { currentUser, setCurrentUser, cart, addToCart, clearCart } = useAppContext();
+  const { currentUser, setCurrentUser, cart, addToCart, removeFromCart, clearCart } = useAppContext();
   const [products, setProducts] = useState([]);
   const [wallet, setWallet] = useState<{ address: string, signer: any } | null>(null);
   const [isCheckout, setIsCheckout] = useState(false);
@@ -257,7 +257,17 @@ export default function Home() {
         {isCheckout ? (
           <div className="max-w-7xl mx-auto p-8 lg:px-16">
             <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 max-w-2xl mx-auto mt-8 border border-gray-100">
-              <h2 className="text-3xl font-extrabold mb-8 pb-6 border-b border-gray-100">Checkout</h2>
+              <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-100">
+                <h2 className="text-3xl font-extrabold text-gray-900">Checkout</h2>
+                {cart.length > 0 && (
+                  <button
+                    onClick={() => { clearCart(); toast.info("Cart cleared"); }}
+                    className="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition"
+                  >
+                    Clear Cart
+                  </button>
+                )}
+              </div>
               {!currentUser ? (
                 <div className="text-center py-12">
                   <FontAwesomeIcon icon={faUserCircle} className="text-6xl text-gray-300 mb-4 block mx-auto" />
@@ -281,7 +291,16 @@ export default function Home() {
                           </div>
                           <span className="font-bold text-lg text-gray-800">{item.name}</span>
                         </div>
-                        <span className="font-extrabold text-gray-800 bg-gray-50 px-4 py-2 rounded-lg">${(item.price_eth * 3000).toFixed(2)}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-extrabold text-gray-800 bg-gray-50 px-4 py-2 rounded-lg">${(item.price_eth * 3000).toFixed(2)}</span>
+                          <button
+                            onClick={() => { removeFromCart(idx); toast.info(`Removed ${item.name}`); }}
+                            className="text-gray-400 hover:text-red-500 hover:bg-red-50 w-8 h-8 rounded-full flex items-center justify-center transition font-bold"
+                            title="Remove item"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </li>
                     ))}
                   </ul>

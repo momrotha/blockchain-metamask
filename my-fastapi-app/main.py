@@ -157,15 +157,15 @@ def create_order(order: OrderCreate, db: Session = Depends(get_db)):
     db.refresh(db_order)
     return db_order
 
-@app.post("/orders/fail")
-def mark_order_failed(fail: OrderFail, db: Session = Depends(get_db)):
-    order = db.query(models.Order).filter(models.Order.id == fail.order_id).first()
+@app.delete("/orders/{order_id}")
+def cancel_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    order.status = "failed"
-    order.failure_reason = fail.reason
+    db.delete(order)
     db.commit()
-    return {"status": "order marked as failed", "reason": fail.reason}
+    return {"status": "success", "message": "Order cancelled"}
+
 
 @app.get("/orders/{email}")
 def get_user_orders(email: str, db: Session = Depends(get_db)):
