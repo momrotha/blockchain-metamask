@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 const PAYMENT_PROCESSOR_ABI = [
   "function pay(string memory orderId) public payable"
 ];
-const PAYMENT_PROCESSOR_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const PAYMENT_PROCESSOR_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x970a0CcD8a4839497C0a0803Db2FCbb8d510D428";
 
 export default function Home() {
   const { currentUser, setCurrentUser, cart, addToCart, clearCart } = useAppContext();

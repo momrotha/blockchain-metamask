@@ -25,8 +25,9 @@ app.add_middleware(
 os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
-# Connect to local Hardhat node
-w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
+# Connect to blockchain (local node or Sepolia testnet via Alchemy)
+WEB3_PROVIDER_URL = os.getenv('WEB3_PROVIDER_URL', 'http://127.0.0.1:8545')
+w3 = Web3(Web3.HTTPProvider(WEB3_PROVIDER_URL))
 
 def get_db():
     db = database.SessionLocal()

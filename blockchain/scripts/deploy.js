@@ -1,16 +1,24 @@
 import hre from "hardhat";
 import { ethers } from "ethers";
+import "dotenv/config";
 
 async function main() {
   let provider;
   let signer;
 
-  if (hre.network.name === "sepolia") {
-    if (!process.env.ALCHEMY_SEPOLIA_URL || !process.env.SEPOLIA_PRIVATE_KEY) {
-      throw new Error("Please set ALCHEMY_SEPOLIA_URL and SEPOLIA_PRIVATE_KEY in your .env file");
+  const isSepolia = process.argv.includes("sepolia") || hre.network?.name === "sepolia";
+
+  if (isSepolia) {
+    const rpcUrl = process.env.ALCHEMY_SEPOLIA_URL;
+    const privateKey = process.env.SEPOLIA_PRIVATE_KEY;
+
+    if (!rpcUrl || !privateKey) {
+      throw new Error(
+        "Missing environment variables! Please ensure ALCHEMY_SEPOLIA_URL and SEPOLIA_PRIVATE_KEY are defined in your blockchain/.env file."
+      );
     }
-    provider = new ethers.JsonRpcProvider(process.env.ALCHEMY_SEPOLIA_URL);
-    signer = new ethers.Wallet(process.env.SEPOLIA_PRIVATE_KEY, provider);
+    provider = new ethers.JsonRpcProvider(rpcUrl);
+    signer = new ethers.Wallet(privateKey, provider);
     console.log(`Deploying to Sepolia with account: ${signer.address}`);
   } else {
     // Default to local node
